@@ -16,7 +16,6 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        transform.position = player.position + offset;
     }
 
     void LateUpdate()

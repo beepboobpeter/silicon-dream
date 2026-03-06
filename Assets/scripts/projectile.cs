@@ -2,62 +2,81 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public float speed = 15f;        // forward speed
-    public float wobbleAmount = 0.3f; // side-to-side offset
-    public float wobbleSpeed = 5f;    // wobble frequency
-    public float lifetime = 2f;       // destroy after 2 seconds
+    [Header("Movement")]
+    public float speed = 15f;
+    public float wobbleAmount = 0.3f;  // side-to-side offset strength
+    public float wobbleSpeed = 5f;     // sine wave frequency
 
-    private Vector3 moveDirection;
-    private Transform player;
-    private EyeDetection detection;
-    private Vector3 wobbleAxis;
-    private float startTime;
+    [Header("Lost Target")]
+    public float driftUpSpeed = 5f;     // how fast it floats upward after losing the player
 
-    // Initialize references from EyeAttack
+    [Header("Lifetime")]
+    public float lifetime = 3f;         // always destroyed after this many seconds
+
+    Transform player;
+    EyeDetection detection;
+    Vector3 moveDirection;
+    Vector3 wobbleAxis;
+    float spawnTime;
+    bool lost;
+
     public void Initialize(Transform playerTransform, EyeDetection eyeDetection)
     {
         player = playerTransform;
         detection = eyeDetection;
+        lost = false;
 
-        // Calculate initial direction toward player
-        if (detection.canSeePlayer)
-        {
-            moveDirection = (player.position - transform.position).normalized;
-        }
-        else
-        {
-            moveDirection = transform.forward;
-        }
-
-        // Choose a perpendicular axis for wobble
+        moveDirection = (player.position - transform.position).normalized;
         wobbleAxis = Vector3.Cross(moveDirection, Vector3.up).normalized;
-        startTime = Time.time;
+        spawnTime = Time.time;
 
-        // Destroy after lifetime
+        // always self-destruct after lifetime, no matter what
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
-        if (player != null && detection != null && detection.canSeePlayer)
+        bool canSee = player != null && detection != null && detection.canSeePlayer;
+
+        if (canSee && !lost)
         {
-            // Update direction toward player while visible
+            // follow the player with a small sine wave wobble
             moveDirection = (player.position - transform.position).normalized;
             wobbleAxis = Vector3.Cross(moveDirection, Vector3.up).normalized;
+
+            float wobble = Mathf.Sin((Time.time - spawnTime) * wobbleSpeed) * wobbleAmount;
+            Vector3 velocity = (moveDirection + wobbleAxis * wobble).normalized * speed;
+
+            transform.position += velocity * Time.deltaTime;
+            transform.forward = moveDirection;
         }
+        else
+        {
+            // lost the player — drift upward
+            if (!lost)
+            {
+                lost = true;
 
-        // Apply wobble
-        Vector3 wobble = wobbleAxis * Mathf.Sin((Time.time - startTime) * wobbleSpeed) * wobbleAmount;
+                // disable collider so it doesn't hit walls while drifting
+                Collider col = GetComponent<Collider>();
+                if (col != null)
+                    col.enabled = false;
+            }
 
-        // Move projectile
-        transform.position += (moveDirection + wobble).normalized * speed * Time.deltaTime;
-
-        // Rotate visually toward main direction
-        transform.forward = moveDirection;
+            transform.position += Vector3.up * driftUpSpeed * Time.deltaTime;
+            transform.forward = Vector3.up;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        Destroy(gameObject);
+        if (!lost)
+            Destroy(gameObject);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (!lost)
+            Destroy(gameObject);
     }
 }

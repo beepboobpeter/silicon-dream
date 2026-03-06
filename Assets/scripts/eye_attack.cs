@@ -7,15 +7,17 @@ public class EyeAttack : MonoBehaviour
     public Transform firePoint;
     public Transform player;
 
-    public float fireRate = 0.5f; // time between projectiles
+    public float fireRate = 0.5f; // seconds between shots
 
-    private float fireTimer = 0f;
+    float fireTimer;
 
     void Update()
     {
+        if (detection == null)
+            return;
+
         if (detection.canSeePlayer)
         {
-            // Count down timer
             fireTimer -= Time.deltaTime;
 
             if (fireTimer <= 0f)
@@ -26,17 +28,22 @@ public class EyeAttack : MonoBehaviour
         }
         else
         {
-            // Player hidden → reset timer so next shot is immediate when seen
+            // reset so the first shot fires immediately when the player is seen again
             fireTimer = 0f;
         }
     }
 
     void Shoot()
     {
-        if (projectilePrefab != null && firePoint != null)
+        if (projectilePrefab == null || firePoint == null)
+            return;
+
+        GameObject proj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+        Projectile projectile = proj.GetComponent<Projectile>();
+
+        if (projectile != null)
         {
-            GameObject proj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-            proj.GetComponent<Projectile>().Initialize(player, detection);
+            projectile.Initialize(player, detection);
         }
     }
 }

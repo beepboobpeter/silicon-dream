@@ -11,13 +11,16 @@ public class SlidingSide : MonoBehaviour
 
     private void Update()
     {
-        trees.transform.position += new Vector3(0, 0, -1 * Time.deltaTime);
+        gameObject.transform.position += new Vector3(0, 0, -2 * Time.deltaTime);
 
 
         if(transform.position.z <= -Index)
         {
-            GameObject TempTree = Instantiate(trees, transform);
-            TempTree.transform.position = new Vector3(0, 0, 16);
+            GameObject TempTree1 = Instantiate(trees, transform);
+            TempTree1.transform.position = new Vector3(0, 0, 16);
+
+            GameObject TempTree2 = Instantiate(trees, transform);
+            TempTree2.transform.position = new Vector3(0, 0, 24);
 
             Index = Index + 15.95f;
         }

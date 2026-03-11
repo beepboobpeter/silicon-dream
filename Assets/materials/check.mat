@@ -98,6 +98,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BendStrength: 0.0132
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -115,7 +116,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Levels: 8
+    - _Levels: 3.22
     - _LightIntensity: 0.89
     - _Metallic: 0.44
     - _OcclusionStrength: 1

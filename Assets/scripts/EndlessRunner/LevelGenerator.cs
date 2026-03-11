@@ -26,7 +26,7 @@ public class LevelGenerator : MonoBehaviour
 
     private void Update()
     {
-        gameObject.transform.position += new Vector3(0, 0, -5 * Time.deltaTime);
+        gameObject.transform.position += new Vector3(0, 0, -7 * Time.deltaTime);
 
         if(transform.position.z <= -Index)
         {
